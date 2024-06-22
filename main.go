@@ -31,6 +31,8 @@ func main() {
 	mux := http.NewServeMux()
 	// mux is a router
 	mux.HandleFunc("/", home)
+	// servemux treats this as a catch all
+	// any path that doesn't match any other handler will be sent to this handler
 
 	// ListenAndServe to start a new server
 	// 2 parameters, port and our servemux
@@ -38,6 +40,7 @@ func main() {
 
 	log.Println("Starting server on :4000")
 	err := http.ListenAndServe(":4000", mux)
+	// if we don't specify a port it will listen on all interfaces
 	log.Fatal(err)
 
 }

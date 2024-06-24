@@ -7,6 +7,12 @@ import (
 
 // home handler function writing a byte slice
 func home(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		// if we don't want / to be a catch all
+		http.NotFound(w, r)
+		// requires both of this for some reason
+		return
+	}
 	w.Write([]byte("Hello from me!"))
 	// byte slice because it only accepts byte slice
 	// fundamental type in Go, directly represents binary data
@@ -39,11 +45,18 @@ func main() {
 
 	mux := http.NewServeMux()
 	// mux is a router
+	// creating this explicitly is good
+	// we don't HAVE TO but it's a lot safer and more secure
 	mux.HandleFunc("/", home)
 	// servemux treats this as a catch all
 	// any path that doesn't match any other handler will be sent to this handler
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
+	// fixed paths bc they don't end with a /
+	// the URL has to match this exactly
+	// "/" is a subtree path because it ends in a slash
+	// something like "/static/" would also be an example
+	// we can think of it like a wild card. such as "/static/**"
 
 	// ListenAndServe to start a new server
 	// 2 parameters, port and our servemux

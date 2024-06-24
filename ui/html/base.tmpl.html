@@ -4,6 +4,14 @@
   <head>
     <meta charset="utf-8" />
     <title>{{template "title" .}} - Snippetbox</title>
+    <!-- static files links -->
+    <link href="/static/css/main.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="/static/img/favicon.ico" />
+    <!-- fonts link -->
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Roboto"
+    />
   </head>
   <body>
     <header>
@@ -13,6 +21,7 @@
     <!-- invoking the navigation template -->
     <main>{{template "main" .}}</main>
     <footer>Powered by <a href="https://golang.org/">Go</a></footer>
+    <script src="/static/js/main.js" type="text/javascript"></script>
   </body>
 </html>
 {{end}}

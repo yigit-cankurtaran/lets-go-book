@@ -15,6 +15,15 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// responsewriter provides methods to construct a response
 	// *http.Request is a pointer to a struct that holds all the information about the request
 
+	// this will be used for our home route
+}
+
+func snippetView(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("display a specific snippet"))
+}
+
+func snippetCreate(w http.ResponseWriter, r *http.Request) {
+	w.Write([]byte("create a new snippet"))
 }
 
 func main() {
@@ -33,6 +42,8 @@ func main() {
 	mux.HandleFunc("/", home)
 	// servemux treats this as a catch all
 	// any path that doesn't match any other handler will be sent to this handler
+	mux.HandleFunc("/snippet/view", snippetView)
+	mux.HandleFunc("/snippet/create", snippetCreate)
 
 	// ListenAndServe to start a new server
 	// 2 parameters, port and our servemux

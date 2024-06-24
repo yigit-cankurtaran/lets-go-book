@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // home handler function writing a byte slice
@@ -25,7 +27,16 @@ func home(w http.ResponseWriter, r *http.Request) {
 }
 
 func snippetView(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("display a specific snippet"))
+	// extract the value of id and convert to an integer
+
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+	if err != nil || id < 1 {
+		// if it can't be an integer or is <1 return 404
+		http.NotFound(w, r)
+		return
+	}
+
+	fmt.Fprint(w, "displaying snippet with ID ", id)
 }
 
 func snippetCreate(w http.ResponseWriter, r *http.Request) {
@@ -33,11 +44,13 @@ func snippetCreate(w http.ResponseWriter, r *http.Request) {
 		// if method is not post
 		// first is the header name second is the header value
 		w.Header().Set("Allow", "POST")
-		// send 405 and write it out
-		w.WriteHeader(405)
-		// we can only call this once, more logs a warning
-		// we have to put this first because anything else sends a 200 OK code
-		w.Write([]byte("method not allowed"))
+		// sending a response we get 3 automatic headers
+		// Date | Content-Length | Content-Type
+		// the final one Go tries to sniff it and try setting the correct one
+		// we can also set it manually the way we do it here
+		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+		// uses http.Error to handle that part
+		// we also pass w in so it can send a response to the user for us
 		return
 	}
 

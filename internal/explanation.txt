@@ -1,0 +1,2 @@
+this will hold non-app specific code.
+potentially hold reusable code like valid helpers and SQL database models

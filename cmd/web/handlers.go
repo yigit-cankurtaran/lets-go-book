@@ -14,8 +14,14 @@ func home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	files := []string{
+		"./ui/html/base.tmpl.html",
+		"./ui/html/pages/home.tmpl.html",
+	}
+
 	// template.ParseFiles() to read template file into a set
-	ts, err := template.ParseFiles("./ui/html/pages/home.tmpl.html")
+	// we can pass it as a variadic parameter
+	ts, err := template.ParseFiles(files...)
 	// either relative to current directory or an absolute path
 	// this is relative obviously
 	if err != nil {
@@ -27,13 +33,16 @@ func home(w http.ResponseWriter, r *http.Request) {
 	// then Execute() the template set to write it as response body
 	// the last parameter is any dynamic data we want to pass in
 	// for now we'll leave it as nil
-	err = ts.Execute(w, nil)
+	err = ts.ExecuteTemplate(w, "base", nil)
+	// assigning to err to check if there's an error
+	// using ExecuteTemplate because we have multiple templates
+	// that template invokes other templates
 	if err != nil {
 		log.Println(err.Error())
 		http.Error(w, "internal server error", http.StatusInternalServerError)
 	}
 
-	w.Write([]byte("hello from me!"))
+	w.Write([]byte("hello world from me!"))
 }
 
 func snippetView(w http.ResponseWriter, r *http.Request) {

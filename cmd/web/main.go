@@ -10,6 +10,12 @@ import (
 	"os"
 )
 
+// we could also make these global variables but this is best practice
+type application struct {
+	errorLog *log.Logger
+	infoLog  *log.Logger
+}
+
 func main() {
 	// command line flag named addr, default is ":4000"
 	// and some short text to explain what it controls
@@ -31,6 +37,11 @@ func main() {
 
 	// log.New loggers are safe from race conditions
 
+	app := &application{
+		errorLog: errorLog,
+		infoLog:  infoLog,
+	}
+
 	mux := http.NewServeMux()
 
 	// creating our file server for static files
@@ -42,11 +53,12 @@ func main() {
 	// we can serve single files with http.ServeFile()
 	// but that's more unsafe and less efficient
 
-	mux.HandleFunc("/", home)
+	// using the struct methods as handler funcs
+	mux.HandleFunc("/", app.home)
 	// HandleFunc transforms a function into a handler
 	// and registers it in the same step
-	mux.HandleFunc("/snippet/view", snippetView)
-	mux.HandleFunc("/snippet/create", snippetCreate)
+	mux.HandleFunc("/snippet/view", app.snippetView)
+	mux.HandleFunc("/snippet/create", app.snippetCreate)
 
 	// we need to change http.Server's defaults to use our error logger
 	// instead of the default one which it uses

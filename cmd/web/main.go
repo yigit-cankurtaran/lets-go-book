@@ -7,6 +7,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -18,6 +19,17 @@ func main() {
 	// it will log an error and exit
 	flag.Parse()
 	// we need to call Parse before we use the addr var
+
+	// creating a logger for info messages
+	// 3 parameters: where to write logs (os.Stdout)
+	// a string prefix (INFO and tab) and flags for more info
+	infoLog := log.New(os.Stdout, "INFO\t", log.Ldate|log.Ltime)
+
+	// logger for error messages, using Stderr as output
+	// and Lshortfile to include the file name and line number
+	errorLog := log.New(os.Stderr, "ERROR\t", log.Ldate|log.Ltime|log.Lshortfile)
+
+	// log.New loggers are safe from race conditions
 
 	mux := http.NewServeMux()
 
@@ -36,7 +48,15 @@ func main() {
 	mux.HandleFunc("/snippet/view", snippetView)
 	mux.HandleFunc("/snippet/create", snippetCreate)
 
-	log.Printf("starting server on %s", *addr)
-	err := http.ListenAndServe(*addr, mux)
-	log.Fatal(err)
+	// we need to change http.Server's defaults to use our error logger
+	// instead of the default one which it uses
+	srv := &http.Server{
+		Addr:     *addr,
+		ErrorLog: errorLog,
+		Handler:  mux,
+	}
+
+	infoLog.Printf("starting server on %s", *addr)
+	err := srv.ListenAndServe()
+	errorLog.Fatal(err)
 }

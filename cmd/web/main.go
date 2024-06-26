@@ -10,6 +10,10 @@ import (
 	"net/http"
 	"os"
 
+	// we need to import the models package
+	"snippetbox.yigitcankurtaran.net/internal/models"
+	// we got the module path from go.mod
+
 	_ "github.com/go-sql-driver/mysql"
 	// prefixed with an _ because we need its init function
 	// we don't use anything else from this package
@@ -19,6 +23,8 @@ import (
 type application struct {
 	errorLog *log.Logger
 	infoLog  *log.Logger
+	// making SnippetModel available to handlers
+	snippets *models.SnippetModel
 }
 
 func main() {
@@ -54,9 +60,11 @@ func main() {
 	// this isn't really necessary but it's good practice
 	// for when we add a graceful shutdown feature
 
+	// application dependency injection
 	app := &application{
 		errorLog: errorLog,
 		infoLog:  infoLog,
+		snippets: &models.SnippetModel{DB: db},
 	}
 
 	// we need to change http.Server's defaults to use our error logger

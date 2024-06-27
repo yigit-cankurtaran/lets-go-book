@@ -24,36 +24,30 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for _, snippet := range snippets {
-		fmt.Fprintf(w, "%v\n", snippet)
+	files := []string{
+		"./ui/html/base.tmpl.html",
+		"./ui/html/partials/nav.tmpl.html",
+		"./ui/html/pages/home.tmpl.html",
 	}
 
-	// files := []string{
-	// 	"./ui/html/base.tmpl.html",
-	// 	"./ui/html/partials/nav.tmpl.html",
-	// 	"./ui/html/pages/home.tmpl.html",
-	// }
+	// template.ParseFiles() to read template file into a set
+	// we can pass it as a variadic parameter
+	ts, err := template.ParseFiles(files...)
+	// either relative to current directory or an absolute path
+	// this is relative obviously
+	if err != nil {
+		app.serverError(w, err)
+		return
+	}
 
-	// // template.ParseFiles() to read template file into a set
-	// // we can pass it as a variadic parameter
-	// ts, err := template.ParseFiles(files...)
-	// // either relative to current directory or an absolute path
-	// // this is relative obviously
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// 	return
-	// }
+	// instance of templateData holding slice of snippets
+	data := &templateData{Snippets: snippets}
 
-	// // then Execute() the template set to write it as response body
-	// // the last parameter is any dynamic data we want to pass in
-	// // for now we'll leave it as nil
-	// err = ts.ExecuteTemplate(w, "base", nil)
-	// // assigning to err to check if there's an error
-	// // using ExecuteTemplate because we have multiple templates
-	// // that template invokes other templates
-	// if err != nil {
-	// 	app.serverError(w, err)
-	// }
+	// execute the template set
+	err = ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.serverError(w, err)
+	}
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {

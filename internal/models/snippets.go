@@ -87,5 +87,45 @@ WHERE expires > UTC_TIMESTAMP() AND id = ?`
 
 // getting the 10 most recent snippets
 func (m *SnippetModel) Latest() ([]*Snippet, error) {
-	return nil, nil
+	// SQL statement we want to execute
+	stmt := `SELECT id, title, content, created, expires FROM snippets WHERE expires > UTC_TIMESTAMP() ORDER BY id DESC LIMIT 10`
+
+	// Query() is used to execute a SQL statement that returns multiple rows
+	// it returns a sql.Rows set with our query results
+	rows, err := m.DB.Query(stmt)
+	if err != nil {
+		return nil, err
+	}
+	// we need to close the rows when we're done
+	defer rows.Close()
+	// defer beacuse we want to close the rows after we've read all the rows
+	// this should come after we error handle else we'll get a panic
+	// this is CRITICAL. if we don't close the rows, we'll leak connections
+
+	// initialize a slice to hold the Snippet structS
+	snippets := []*Snippet{}
+
+	// use rows.Next() to iterate through the rows in the result set
+	// it returns true if there's a next row, false if there's no more rows
+	for rows.Next() {
+		// initialize a pointer to a new Snippet struct
+		s := &Snippet{}
+
+		// use rows.Scan() to copy the values from each field in the row to the new Snippet struct
+		err = rows.Scan(&s.ID, &s.Title, &s.Content, &s.Created, &s.Expires)
+		if err != nil {
+			return nil, err
+		}
+
+		// append it to the slice
+		snippets = append(snippets, s)
+	}
+
+	// error handling for any errors encountered during the iteration
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	// if everything is fine, return the Snippet slice
+	return snippets, nil
 }

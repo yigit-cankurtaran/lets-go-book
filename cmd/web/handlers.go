@@ -3,7 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
-	"html/template"
+
+	// "html/template"
 	"net/http"
 	"strconv"
 
@@ -17,34 +18,42 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/base.tmpl.html",
-		"./ui/html/partials/nav.tmpl.html",
-		"./ui/html/pages/home.tmpl.html",
-	}
-
-	// template.ParseFiles() to read template file into a set
-	// we can pass it as a variadic parameter
-	ts, err := template.ParseFiles(files...)
-	// either relative to current directory or an absolute path
-	// this is relative obviously
+	snippets, err := app.snippets.Latest()
 	if err != nil {
 		app.serverError(w, err)
 		return
 	}
 
-	// then Execute() the template set to write it as response body
-	// the last parameter is any dynamic data we want to pass in
-	// for now we'll leave it as nil
-	err = ts.ExecuteTemplate(w, "base", nil)
-	// assigning to err to check if there's an error
-	// using ExecuteTemplate because we have multiple templates
-	// that template invokes other templates
-	if err != nil {
-		app.serverError(w, err)
+	for _, snippet := range snippets {
+		fmt.Fprintf(w, "%v\n", snippet)
 	}
 
-	w.Write([]byte("hello world from me!"))
+	// files := []string{
+	// 	"./ui/html/base.tmpl.html",
+	// 	"./ui/html/partials/nav.tmpl.html",
+	// 	"./ui/html/pages/home.tmpl.html",
+	// }
+
+	// // template.ParseFiles() to read template file into a set
+	// // we can pass it as a variadic parameter
+	// ts, err := template.ParseFiles(files...)
+	// // either relative to current directory or an absolute path
+	// // this is relative obviously
+	// if err != nil {
+	// 	app.serverError(w, err)
+	// 	return
+	// }
+
+	// // then Execute() the template set to write it as response body
+	// // the last parameter is any dynamic data we want to pass in
+	// // for now we'll leave it as nil
+	// err = ts.ExecuteTemplate(w, "base", nil)
+	// // assigning to err to check if there's an error
+	// // using ExecuteTemplate because we have multiple templates
+	// // that template invokes other templates
+	// if err != nil {
+	// 	app.serverError(w, err)
+	// }
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {

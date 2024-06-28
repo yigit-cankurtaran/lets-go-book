@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 
-	"html/template"
 	"net/http"
 	"strconv"
 
@@ -24,30 +23,9 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	files := []string{
-		"./ui/html/base.tmpl.html",
-		"./ui/html/partials/nav.tmpl.html",
-		"./ui/html/pages/home.tmpl.html",
-	}
-
-	// template.ParseFiles() to read template file into a set
-	// we can pass it as a variadic parameter
-	ts, err := template.ParseFiles(files...)
-	// either relative to current directory or an absolute path
-	// this is relative obviously
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	// instance of templateData holding slice of snippets
-	data := &templateData{Snippets: snippets}
-
-	// execute the template set
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, http.StatusOK, "home.tmpl.html", &templateData{
+		Snippets: snippets,
+	})
 }
 
 func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
@@ -70,30 +48,9 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// initialize paths to the template files
-	files := []string{
-		"./ui/html/base.tmpl.html",
-		"./ui/html/partials/nav.tmpl.html",
-		"./ui/html/pages/view.tmpl.html",
-	}
-
-	// parse the template files
-	ts, err := template.ParseFiles(files...)
-	if err != nil {
-		app.serverError(w, err)
-		return
-	}
-
-	// create templateData instance holding the snippet data
-	data := &templateData{Snippet: snippet}
-
-	// execute the template set
-	// passing the snippet data to the template
-	// passing in templateData struct when executing
-	err = ts.ExecuteTemplate(w, "base", data)
-	if err != nil {
-		app.serverError(w, err)
-	}
+	app.render(w, http.StatusOK, "view.tmpl.html", &templateData{
+		Snippet: snippet,
+	})
 }
 
 func (app *application) snippetCreate(w http.ResponseWriter, r *http.Request) {

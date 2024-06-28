@@ -6,6 +6,7 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log"
 	"net/http"
 	"os"
@@ -25,6 +26,8 @@ type application struct {
 	infoLog  *log.Logger
 	// making SnippetModel available to handlers
 	snippets *models.SnippetModel
+	// templateCache to struct
+	templateCache map[string]*template.Template
 }
 
 func main() {
@@ -60,11 +63,18 @@ func main() {
 	// this isn't really necessary but it's good practice
 	// for when we add a graceful shutdown feature
 
+	// initialize a new template cache
+	templateCache, err := newTemplateCache()
+	if err != nil {
+		errorLog.Fatal(err)
+	}
+
 	// application dependency injection
 	app := &application{
-		errorLog: errorLog,
-		infoLog:  infoLog,
-		snippets: &models.SnippetModel{DB: db},
+		errorLog:      errorLog,
+		infoLog:       infoLog,
+		snippets:      &models.SnippetModel{DB: db},
+		templateCache: templateCache,
 	}
 
 	// we need to change http.Server's defaults to use our error logger

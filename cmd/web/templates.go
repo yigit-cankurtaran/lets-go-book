@@ -28,15 +28,18 @@ func newTemplateCache() (map[string]*template.Template, error) {
 			return nil, err
 		}
 
+		// adding partials
 		ts, err = ts.ParseGlob("./ui/html/partials/*.tmpl.html")
 		if err != nil {
 			return nil, err
 		}
 
+		// adding page template
 		ts, err = ts.ParseFiles(page)
 		if err != nil {
 			return nil, err
 		}
+		// template set to the map
 		cache[name] = ts
 	}
 	return cache, nil
